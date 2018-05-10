@@ -41,7 +41,7 @@ def find_loc(fname,hemi='lh'):
     #assign know labels to loc
     loc['dorsal'][1]=y_cp[0]
     loc['ventral'][3]=y_cp[1]
-    loc['colormap'][1]=y_cp[2]
+    loc['colormap'][1]=y_cp[-4]
     loc['colormap'][3]=y_cp[-1]
     
     #draw colormap
@@ -71,8 +71,8 @@ def find_loc(fname,hemi='lh'):
     y_cmp_ap = img_ap.sum(axis=1)
     y_ap_bin = np.where(y_cmp_ap==img_ap.shape[1],0,1)
     img_ap_cp = find_pixchange(y_ap_bin)
-    loc['anterior']=[img_x_cp[4]-1,img_ap_cp[0]-1,img_x_cp[5]+2,img_ap_cp[1]+2]
-    loc['posterior']=[img_x_cp[4]-1,img_ap_cp[2]-1,img_x_cp[5]+2,img_ap_cp[3]+2]
+    loc['anterior']=[img_x_cp[4]-1,img_lm_cp[0]-1,img_x_cp[5]+2,img_lm_cp[1]+2]
+    loc['posterior']=[img_x_cp[4]-1,img_lm_cp[2]-1,img_x_cp[5]+2,img_lm_cp[3]+2]
     
     
     #cut dv view so that can compare each view's y loc
@@ -129,15 +129,19 @@ args = parser.parse_args()
 
 
 output_dir=args.outDir
-if args.inDir:
+
+if op.isfile(args.left) and op.isfile(args.right):
+    flh=args.left
+    frh=args.right
+
+elif args.inDir:
     input_dir=args.inDir
     lh_name=args.left
     rh_name=args.right
     flh=op.join(input_dir,lh_name)
     frh=op.join(input_dir,rh_name)
 else:
-    flh=args.left
-    rh=args.right
+    print("%s or %s is no a exist file please check"%(args.left,args.right))
 
 
 view_names = ['lateral','medial','anterior','posterior','colormap','dorsal','ventral']
@@ -151,14 +155,15 @@ elif not op.isdir(output_dir+'/montaged'):
 
 
 
-print("Montaging Image %s and %s at %s......."%(flh,frh,output_dir))
+print("Montaging Image at%s"%(output_dir))
 
 if not op.isfile(flh) or not op.isfile(frh):
     print("%s or %s is not a picture.please chekc and add the full path of your pic in"%(flh,frh))
     exit()
 
 lh_loc=find_loc(flh,hemi='lh')
-rh_loc=find_loc(flh,hemi='rh')
+rh_loc=find_loc(frh,hemi='rh')
+
 #crop images and save into a list
 lh_im=im.open(flh)
 lh_images={key:lh_im.crop(box=value) for key,value in lh_loc.items()}
@@ -166,6 +171,7 @@ rh_im=im.open(frh)
 rh_images={key:rh_im.crop(box=value) for key,value in rh_loc.items()}
 lh_images_resized=resize_images(lh_images,rh_images)
 
+print("saving image to %s"% output_dir)
 montaged_images={}
 for key in view_names:
     if key != 'anterior': 
@@ -177,7 +183,12 @@ for key in view_names:
     fnames = op.join(output_dir,'montaged/%s.png'%key)
     im_montaged.save(fnames)
     montaged_images[key]=im_montaged
-    
+
+#ap view
+fnames = op.join(output_dir,'montaged/posterior.png')
+post_view = montage_images(lh_images['posterior'],rh_images['posterior'])
+post_view.save(fnames)
+   
 #lm view   
 fnames = op.join(output_dir,'montaged/lm.png')
 lm_view = montage_images(montaged_images['lateral'],montaged_images['medial'],'y')
@@ -200,4 +211,4 @@ lmrh_view = montage_images(rh_images['lateral'],rh_images['medial'])
 lmlr_view = montage_images(lmlh_view,lmrh_view)
 lmlr_view.save(fnames)
 
-print('\n------------------------------- FINISHED ------------------------------- ')
+print('\n----------------------------------- FINISHED --------------------------------- ')
