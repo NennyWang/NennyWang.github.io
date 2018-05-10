@@ -146,9 +146,12 @@ view_names_sec = ['lm','dv','ap','lmlh','lmrh']
 if not op.isdir(output_dir):
     print("Fatel Error %s is not a directory"%output_dir)
     exit()
-else:
-    print("Starting montage image .......")
+elif not op.isdir(output_dir+'/montaged'):
     os.mkdir(output_dir+'/montaged')
+
+
+
+print("Montaging Image %s and %s at %s......."%(flh,frh,output_dir))
 
 if not op.isfile(flh) or not op.isfile(frh):
     print("%s or %s is not a picture.please chekc and add the full path of your pic in"%(flh,frh))
@@ -197,4 +200,4 @@ lmrh_view = montage_images(rh_images['lateral'],rh_images['medial'])
 lmlr_view = montage_images(lmlh_view,lmrh_view)
 lmlr_view.save(fnames)
 
-print("Done")
+print('\n------------------------------- FINISHED ------------------------------- ')
