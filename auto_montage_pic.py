@@ -121,7 +121,7 @@ reqoptions.add_argument('-rh', '-r', dest="right", required=True, help='full pat
 optoptions = parser.add_argument_group('Optional arguments')
 optoptions.add_argument('-i', '-in', dest="inDir", required=True, help='Input directory name')
 
-print('\n------------------------------- MONTAGING PICTURES ------------------------------- ')
+print('\n------------------------------- MONTAGING PICTURES -----------------------------')
 
 
 #parser
@@ -155,7 +155,7 @@ elif not op.isdir(output_dir+'/montaged'):
 
 
 
-print("Montaging Image at%s"%(output_dir))
+print("Montaging Image at %s"%(output_dir))
 
 if not op.isfile(flh) or not op.isfile(frh):
     print("%s or %s is not a picture.please chekc and add the full path of your pic in"%(flh,frh))
