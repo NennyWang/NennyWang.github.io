@@ -117,14 +117,28 @@ reqoptions.add_argument('-o', '-out', dest="outDir", required=True, help='Output
 reqoptions.add_argument('-lh', '-l', dest="left", required=True, help='full path name of left hemi pic')
 reqoptions.add_argument('-rh', '-r', dest="right", required=True, help='full path name of right hemi pic')
 
+
+## Optional options
+optoptions = parser.add_argument_group('Optional arguments')
+optoptions.add_argument('-i', '-in', dest="inDir", required=True, help='Input directory name')
+
 print('\n------------------------------- MONTAGING PICTURES ------------------------------- ')
 
 
 #parser
 args = parser.parse_args()
+
+
 output_dir=args.outDir
-flh=args.left
-frh=args.right
+if args.inDir:
+    input_dir=args.inDir
+    lh_name=args.left
+    rh_name=args.right
+    flh=op.join(input_dir,lh_name)
+    frh=op.join(input_dir,rh_name)
+else:
+    flh=args.left
+    rh=args.right
 
 
 view_names = ['lateral','medial','anterior','posterior','colormap','dorsal','ventral']
