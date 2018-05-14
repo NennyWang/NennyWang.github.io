@@ -1,19 +1,22 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+
+
 """
 Created on Thu May 10 15:53:39 2018
 @author: Yinshan Wang
 """
 
-#!/usr/bin/env python
+
 
 # Import required modules
 from __future__ import print_function
-from skimage import io
-import numpy as np
+from skimage import io    #pip install scikit-image
+import numpy as np        
 import os
 import os.path as op
 import argparse
-from PIL import Image as im
+from PIL import Image as im   
 
 
 ## basic functions
@@ -112,14 +115,14 @@ parser = argparse.ArgumentParser(description='Script to montage images from')
 
 # Required options                    
 reqoptions = parser.add_argument_group('Required arguments')
-reqoptions.add_argument('-o', '-out', dest="outDir", required=True, help='Output directory name')
 reqoptions.add_argument('-lh', '-l', dest="left", required=True, help='full path name of left hemi pic')
 reqoptions.add_argument('-rh', '-r', dest="right", required=True, help='full path name of right hemi pic')
 
 
 ## Optional options
 optoptions = parser.add_argument_group('Optional arguments')
-optoptions.add_argument('-i', '-in', dest="inDir", required=True, help='Input directory name')
+optoptions.add_argument('-i', '-in', dest="inDir", required=False, help='Input directory name')
+optoptions.add_argument('-o', '-out', dest="outDir", required=False, help='Output directory name')
 
 print('\n------------------------------- MONTAGING PICTURES -----------------------------')
 
@@ -128,12 +131,10 @@ print('\n------------------------------- MONTAGING PICTURES --------------------
 args = parser.parse_args()
 
 
-output_dir=args.outDir
-
+#lh rh
 if op.isfile(args.left) and op.isfile(args.right):
     flh=args.left
     frh=args.right
-
 elif args.inDir:
     input_dir=args.inDir
     lh_name=args.left
@@ -142,6 +143,13 @@ elif args.inDir:
     frh=op.join(input_dir,rh_name)
 else:
     print("%s or %s is no a exist file please check"%(args.left,args.right))
+
+# output dir
+if args.outDir:
+    output_dir=args.outDir
+else:
+    output_dir=op.dirname(flh)
+
 
 
 view_names = ['lateral','medial','anterior','posterior','colormap','dorsal','ventral']
@@ -171,7 +179,7 @@ rh_im=im.open(frh)
 rh_images={key:rh_im.crop(box=value) for key,value in rh_loc.items()}
 lh_images_resized=resize_images(lh_images,rh_images)
 
-print("saving image to %s"% output_dir)
+print("Saving Image to %s"% output_dir)
 montaged_images={}
 for key in view_names:
     if key != 'anterior': 
@@ -180,32 +188,32 @@ for key in view_names:
         im_montaged = lh_images_resized[key]
     else:
         im_montaged = montage_images(rh_images[key],lh_images_resized[key])
-    fnames = op.join(output_dir,'montaged/%s.png'%key)
+    fnames = op.join(output_dir,'%s.png'%key)
     im_montaged.save(fnames)
     montaged_images[key]=im_montaged
 
 #ap view
-fnames = op.join(output_dir,'montaged/posterior.png')
+fnames = op.join(output_dir,'posterior.png')
 post_view = montage_images(lh_images['posterior'],rh_images['posterior'])
 post_view.save(fnames)
    
 #lm view   
-fnames = op.join(output_dir,'montaged/lm.png')
+fnames = op.join(output_dir,'lm.png')
 lm_view = montage_images(montaged_images['lateral'],montaged_images['medial'],'y')
 lm_view.save(fnames)
 
 #dv view
-fnames = op.join(output_dir,'montaged/dv.png')
+fnames = op.join(output_dir,'dv.png')
 dv_view = montage_images(montaged_images['dorsal'],montaged_images['ventral'],'y')
 dv_view.save(fnames)
 
 # ap view
-fnames = op.join(output_dir,'montaged/ap.png')
+fnames = op.join(output_dir,'ap.png')
 ap_view = montage_images(montaged_images['anterior'],montaged_images['posterior'])
 ap_view.save(fnames)
 
 #lmlr
-fnames = op.join(output_dir,'montaged/lmlr.png')
+fnames = op.join(output_dir,'lmlr.png')
 lmlh_view = montage_images(lh_images_resized['lateral'],lh_images_resized['medial'])
 lmrh_view = montage_images(rh_images['lateral'],rh_images['medial'])
 lmlr_view = montage_images(lmlh_view,lmrh_view)
