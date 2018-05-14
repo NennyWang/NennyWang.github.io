@@ -156,10 +156,8 @@ view_names = ['lateral','medial','anterior','posterior','colormap','dorsal','ven
 view_names_sec = ['lm','dv','ap','lmlh','lmrh']
 
 if not op.isdir(output_dir):
-    print("Fatel Error %s is not a directory"%output_dir)
-    exit()
-elif not op.isdir(output_dir+'/montaged'):
-    os.mkdir(output_dir+'/montaged')
+    os.mkdir(output_dir)
+    print("%s is not a directory trying to make one"%output_dir)
 
 
 
